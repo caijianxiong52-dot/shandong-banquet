@@ -1,0 +1,581 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>一席之礼 · 山东酒桌走一遍</title>
+<style>
+  :root{
+    --room-1:#1d130e;
+    --room-2:#281a12;
+    --panel:#2c1c13;
+    --lacquer:#a32f23;
+    --lacquer-deep:#6f1d16;
+    --cloth-1:#b53b2c;
+    --cloth-2:#7c2317;
+    --wood:#5a3620;
+    --gold:#cfa85a;
+    --gold-soft:#9c8348;
+    --amber:#e8aa3b;
+    --rice:#f3ead8;
+    --rice-dim:#c9bba1;
+    --ink:#2a1a12;
+    --font-display:"Songti SC","STSong","Songti TC","SimSun","Noto Serif CJK SC","Noto Serif SC",Georgia,"Times New Roman",serif;
+    --font-body:"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans CJK SC","Noto Sans SC",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;}
+  body{
+    font-family:var(--font-body);
+    color:var(--rice);
+    background:
+      radial-gradient(900px 620px at 50% 40%, #3c2316 0%, #281a12 46%, var(--room-1) 100%);
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+    line-height:1.6;
+  }
+
+  .wrap{
+    max-width:1080px;
+    margin:0 auto;
+    padding:clamp(22px,4vw,52px) clamp(18px,4vw,40px) clamp(40px,6vw,72px);
+  }
+
+  /* ---------- masthead ---------- */
+  .masthead{
+    display:flex; align-items:flex-start; gap:18px;
+    border-bottom:1px solid rgba(207,168,90,.26);
+    padding-bottom:22px;
+  }
+  .seal{
+    flex:0 0 auto; margin-top:6px;
+    width:50px; height:50px; border-radius:7px;
+    background:linear-gradient(160deg,var(--lacquer),var(--lacquer-deep));
+    border:1px solid rgba(243,234,216,.35);
+    display:grid; place-items:center;
+    box-shadow:0 6px 18px rgba(0,0,0,.4);
+  }
+  .seal span{font-family:var(--font-display); font-size:30px; color:var(--rice); line-height:1;}
+  .masthead-text{min-width:0;}
+  .eyebrow{
+    margin:0 0 6px; font-size:12px; letter-spacing:.42em; text-indent:.42em;
+    color:var(--gold); text-transform:uppercase;
+  }
+  h1{
+    font-family:var(--font-display);
+    margin:0; font-weight:600;
+    font-size:clamp(34px,7vw,58px); line-height:1.02;
+    letter-spacing:.04em; color:var(--rice);
+  }
+  .dek{
+    margin:12px 0 0; max-width:46ch;
+    color:var(--rice-dim); font-size:clamp(14px,2.4vw,16px);
+  }
+
+  /* ---------- stepper ---------- */
+  .stepper{
+    display:flex; gap:6px; overflow-x:auto; padding:22px 2px 6px;
+    scrollbar-width:none;
+  }
+  .stepper::-webkit-scrollbar{display:none;}
+  .step-pip{
+    flex:0 0 auto; cursor:pointer;
+    background:transparent; border:0; padding:8px 4px 10px; margin:0;
+    font-family:var(--font-body); color:var(--rice-dim);
+    font-size:13px; letter-spacing:.04em;
+    border-top:2px solid rgba(207,168,90,.22);
+    transition:color .25s, border-color .25s;
+    display:flex; align-items:baseline; gap:7px; white-space:nowrap;
+  }
+  .step-pip .ord{
+    font-family:var(--font-display); font-size:12px;
+    color:var(--gold-soft);
+  }
+  .step-pip:hover{color:var(--rice);}
+  .step-pip.active{color:var(--rice); border-top-color:var(--amber);}
+  .step-pip.active .ord{color:var(--amber);}
+
+  /* ---------- stage layout ---------- */
+  .stage{
+    margin-top:26px;
+    display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+    gap:clamp(20px,4vw,52px); align-items:center;
+  }
+
+  /* ---------- the table (hero) ---------- */
+  .canvas{position:relative; width:100%; max-width:520px; margin:0 auto;}
+  .table-svg{width:100%; height:auto; display:block; overflow:visible;}
+  .legend{
+    display:flex; gap:20px; justify-content:center; flex-wrap:wrap;
+    margin-top:16px; font-size:13px; color:var(--rice-dim);
+  }
+  .legend i{display:inline-block; width:11px; height:11px; border-radius:3px; margin-right:7px; vertical-align:-1px;}
+  .legend .host{background:transparent; border:1.5px solid var(--gold);}
+  .legend .guest{background:transparent; border:1.5px solid var(--rice);}
+  .legend .lead{background:var(--amber); border:1.5px solid var(--amber);}
+
+  /* svg pieces */
+  .chip{fill:#2a1b12; stroke:var(--rice); stroke-width:1.4; transition:stroke .4s, fill .4s;}
+  .seat[data-side="host"] .chip{stroke:var(--gold);}
+  .chip-label{
+    font-family:var(--font-display); font-weight:600;
+    font-size:17px; text-anchor:middle; dominant-baseline:central;
+    fill:var(--rice); transition:fill .4s; pointer-events:none;
+  }
+  .seat[data-side="host"] .chip-label{fill:var(--gold);}
+  .ring{
+    fill:none; stroke:var(--amber); stroke-width:2; opacity:0;
+    transition:opacity .4s;
+  }
+  .seat.is-active .chip{stroke:var(--amber); fill:#3a2412;}
+  .seat.is-active .chip-label{fill:var(--amber);}
+  .seat.is-active .ring{opacity:.9; animation:pulse 2.1s ease-in-out infinite;}
+  .seat{cursor:pointer;}
+  .seat:focus{outline:none;}
+  .seat:focus-visible .chip{stroke:var(--amber);}
+  @keyframes pulse{0%,100%{opacity:.85;} 50%{opacity:.32;}}
+
+  .cup{opacity:0; transition:opacity .45s;}
+  .cup.show{opacity:1;}
+  .cup-glass{fill:rgba(243,234,216,.07); stroke:var(--rice-dim); stroke-width:1.1;}
+  .cup-fill{fill:var(--amber); transform-box:fill-box; transform-origin:50% 100%; transform:scaleY(0); transition:transform .55s ease;}
+  .cup.is-full .cup-fill{transform:scaleY(1);}
+  .cup.is-low  .cup-fill{transform:scaleY(.28);}
+  .cup.is-empty .cup-fill{transform:scaleY(0);}
+
+  .door-label{font-family:var(--font-display); font-size:16px; fill:var(--gold); text-anchor:middle;}
+
+  #toast path.flow{fill:none; stroke:var(--amber); stroke-width:2.4; stroke-linecap:round;}
+  #toast path.sweep{fill:none; stroke:var(--gold); stroke-width:2; stroke-linecap:round; opacity:.55; stroke-dasharray:3 6;}
+  #toast .head{fill:none; stroke:var(--amber); stroke-width:2.4; stroke-linecap:round;}
+  #toast .sweep-label{font-family:var(--font-body); font-size:13px; fill:var(--gold); letter-spacing:.1em;}
+  #toast.draw path.flow{stroke-dasharray:240; stroke-dashoffset:240; animation:draw 1s ease forwards;}
+  @keyframes draw{to{stroke-dashoffset:0;}}
+
+  #fish .body{fill:var(--rice); opacity:.92;}
+  #fish .fin{fill:var(--gold-soft);}
+  #fish .eye{fill:var(--ink);}
+  #fish-label{font-family:var(--font-body); font-size:13px; fill:var(--amber); text-anchor:middle;}
+
+  .speech rect{fill:#3a2412; stroke:var(--amber); stroke-width:1.2;}
+  .speech text{font-family:var(--font-display); font-size:15px; fill:var(--amber); text-anchor:middle; dominant-baseline:central;}
+
+  /* ---------- readout ---------- */
+  .readout{min-width:0;}
+  .progress{
+    font-size:12px; letter-spacing:.3em; text-indent:.3em;
+    color:var(--gold-soft); margin:0 0 12px;
+  }
+  .progress b{color:var(--amber); font-weight:600;}
+  .step-title{
+    font-family:var(--font-display); font-weight:600;
+    font-size:clamp(24px,4.6vw,34px); line-height:1.18; margin:0 0 14px;
+    color:var(--rice); letter-spacing:.02em;
+  }
+  .step-body{margin:0; font-size:clamp(15px,2.5vw,17px); color:#e7ddca; max-width:42ch;}
+
+  .tags{margin:20px 0 0; display:flex; flex-direction:column; gap:12px;}
+  .tag{
+    border-left:2px solid var(--gold);
+    background:linear-gradient(90deg, rgba(207,168,90,.10), rgba(207,168,90,0));
+    padding:10px 14px; border-radius:0 8px 8px 0;
+  }
+  .tag .k{
+    display:inline-block; font-family:var(--font-body); font-size:11px;
+    letter-spacing:.14em; color:var(--gold); margin-bottom:3px;
+  }
+  .tag .k.danger{color:#e9b25a;}
+  .tag p{margin:0; font-size:14.5px; color:var(--rice-dim);}
+
+  .controls{display:flex; gap:12px; margin-top:28px;}
+  .btn{
+    font-family:var(--font-body); font-size:15px; cursor:pointer;
+    padding:11px 22px; border-radius:999px; border:1px solid transparent;
+    transition:background .2s, color .2s, border-color .2s, opacity .2s;
+  }
+  .btn.solid{background:var(--lacquer); color:var(--rice); border-color:var(--lacquer);}
+  .btn.solid:hover{background:#b6362a;}
+  .btn.ghost{background:transparent; color:var(--rice-dim); border-color:rgba(207,168,90,.35);}
+  .btn.ghost:hover{color:var(--rice); border-color:var(--gold);}
+  .btn:disabled{opacity:.32; cursor:default;}
+  .btn:focus-visible{outline:2px solid var(--amber); outline-offset:2px;}
+
+  .seat-hint{
+    margin:22px 0 0; font-size:13px; color:var(--gold-soft);
+    border-top:1px dashed rgba(207,168,90,.25); padding-top:14px;
+  }
+  .seat-hint strong{color:var(--rice); font-weight:600;}
+
+  .footnote{
+    margin:34px 0 0; padding-top:18px;
+    border-top:1px solid rgba(207,168,90,.2);
+    font-size:12.5px; color:var(--gold-soft); text-align:center;
+  }
+
+  @media(max-width:760px){
+    .stage{grid-template-columns:1fr;}
+    .canvas{order:-1;}
+    h1{letter-spacing:.02em;}
+  }
+  @media(prefers-reduced-motion:reduce){
+    *{transition:none !important; animation:none !important;}
+    .cup-fill{transition:none;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <div class="seal" aria-hidden="true"><span>礼</span></div>
+    <div class="masthead-text">
+      <p class="eyebrow">山东 · 酒桌</p>
+      <h1>一席之礼</h1>
+      <p class="dek">不拼酒量，讲的是尊重和层级。跟着走完一整场宴席——从入座，到散席。</p>
+    </div>
+  </header>
+
+  <nav class="stepper" id="stepper" aria-label="宴席流程"></nav>
+
+  <main class="stage">
+    <section class="canvas">
+      <svg class="table-svg" viewBox="0 0 560 588" role="img" aria-label="圆桌座次示意图">
+        <defs>
+          <radialGradient id="cloth" cx="50%" cy="46%" r="60%">
+            <stop offset="0%" stop-color="var(--cloth-1)"/>
+            <stop offset="100%" stop-color="var(--cloth-2)"/>
+          </radialGradient>
+          <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="rgba(232,170,59,.30)"/>
+            <stop offset="100%" stop-color="rgba(232,170,59,0)"/>
+          </radialGradient>
+          <radialGradient id="doorglow" cx="50%" cy="100%" r="80%">
+            <stop offset="0%" stop-color="rgba(232,170,59,.5)"/>
+            <stop offset="100%" stop-color="rgba(232,170,59,0)"/>
+          </radialGradient>
+        </defs>
+
+        <!-- ambient light under the table -->
+        <ellipse cx="280" cy="285" rx="250" ry="245" fill="url(#glow)"/>
+
+        <!-- door at the bottom (faces 主陪) -->
+        <g id="door">
+          <rect x="236" y="540" width="88" height="44" rx="4" fill="url(#doorglow)"/>
+          <line x1="248" y1="544" x2="248" y2="578" stroke="var(--gold)" stroke-width="2.4"/>
+          <line x1="312" y1="544" x2="312" y2="578" stroke="var(--gold)" stroke-width="2.4"/>
+          <line x1="248" y1="544" x2="312" y2="544" stroke="var(--gold)" stroke-width="2.4"/>
+          <text class="door-label" x="280" y="568">门</text>
+        </g>
+
+        <!-- table -->
+        <circle cx="280" cy="285" r="152" fill="url(#cloth)" stroke="var(--wood)" stroke-width="7"/>
+        <circle cx="280" cy="285" r="152" fill="none" stroke="var(--gold)" stroke-width="1.2" opacity=".55"/>
+        <circle cx="280" cy="285" r="92" fill="none" stroke="var(--gold)" stroke-width="1" opacity=".22"/>
+
+        <!-- overlays drawn over the cloth -->
+        <g id="fish" hidden></g>
+        <g id="toast" hidden></g>
+
+        <!-- cups + seats injected by script -->
+        <g id="cups"></g>
+        <g id="seats"></g>
+        <g id="speech" class="speech" hidden>
+          <rect x="-30" y="-16" width="60" height="30" rx="8"/>
+          <text x="0" y="0" id="speech-text"></text>
+        </g>
+      </svg>
+
+      <div class="legend">
+        <span><i class="host"></i>主方（陪）</span>
+        <span><i class="guest"></i>客方（宾）</span>
+        <span><i class="lead"></i>正在带酒</span>
+      </div>
+    </section>
+
+    <section class="readout">
+      <p class="progress">第 <b id="posNow">1</b> / 8 步</p>
+      <h2 class="step-title" id="title"></h2>
+      <p class="step-body" id="body"></p>
+      <div class="tags" id="tags"></div>
+      <div class="controls">
+        <button class="btn ghost" id="prev">上一步</button>
+        <button class="btn solid" id="next">下一步</button>
+      </div>
+      <p class="seat-hint" id="hint"><strong>点桌上的座位</strong>，看看每个角色坐哪儿、有什么来头。</p>
+    </section>
+  </main>
+
+  <p class="footnote">各地（济南、胶东等）规矩略有差异，实际以主人安排和当地习俗为准。喝酒量力而行，安全第一。</p>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  const CX = 280, CY = 285;
+  const ptAt = (deg, r) => {
+    const a = deg * Math.PI / 180;
+    return [CX + r * Math.sin(a), CY - r * Math.cos(a)];
+  };
+  const NS = "http://www.w3.org/2000/svg";
+  const el = (tag, attrs) => {
+    const n = document.createElementNS(NS, tag);
+    for (const k in attrs) n.setAttribute(k, attrs[k]);
+    return n;
+  };
+
+  // role, side, angle (0 = top, clockwise), short blurb shown on tap
+  const SEATS = [
+    {id:"zhupei",  role:"主陪",  side:"host",  angle:0,
+      note:"主人方一号，正对门口而坐。把握全场节奏，通常也是组织、买单的人。第一杯由他带头。"},
+    {id:"fuzhubin",role:"副主宾",side:"guest", angle:45,
+      note:"客人方二号，坐主陪左手边，地位仅次于主宾。"},
+    {id:"sipei",   role:"四陪",  side:"host",  angle:90,
+      note:"主人方后续，靠近主位一侧，协助陪酒、招呼客人。"},
+    {id:"sibin",   role:"四宾",  side:"guest", angle:135,
+      note:"客人方后续，坐在副陪附近。"},
+    {id:"fupei",   role:"副陪",  side:"host",  angle:180,
+      note:"主人方二号，正对主陪、背对门口。酒力担当，负责带气氛、接菜倒酒。主陪之后由他带第二杯。"},
+    {id:"sanbin",  role:"三宾",  side:"guest", angle:225,
+      note:"客人方后续，坐在副陪附近。"},
+    {id:"sanpei",  role:"三陪",  side:"host",  angle:270,
+      note:"主人方，靠近主位一侧，协助陪酒。"},
+    {id:"zhubin",  role:"主宾",  side:"guest", angle:315,
+      note:"客人方一号，最尊贵的客人，坐主陪右手边。职位最高、最受尊敬者坐这里。"},
+  ];
+  const SEAT_BY_ID = Object.fromEntries(SEATS.map(s => [s.id, s]));
+
+  const STAGES = [
+    { key:"开席", title:"开席之前",
+      body:"山东酒桌讲的不是酒量，是尊重和层级。整张桌子的坐标只有两个：门，和正对门而坐的主陪。先认清这两样，后面的规矩就都顺了。",
+      tags:[{k:"本 质", t:"豪爽里带着礼节，目的始终是表达尊重、拉近关系。"}],
+      cups:"none", glow:["zhupei"] },
+
+    { key:"座次", title:"定座次",
+      body:"主陪正对门口，副陪正对面、背对门；主宾坐主陪右手边，副主宾坐左手边。主方（陪）和客方（宾）穿插着坐，方便照应。",
+      tags:[
+        {k:"规 矩", t:"坐错了很尴尬，拿不准就按主人的安排入座。"},
+        {k:"小技巧", t:"认主陪：看餐巾折法（常更高、更特殊）、谁面前摆了公筷，或听主人引导。"}],
+      cups:"none", glow:["zhupei","fupei","zhubin","fuzhubin"] },
+
+    { key:"门前杯", title:"倒门前杯",
+      body:"入座后先把门前杯满上。一瓶白酒通常倒三到四杯（“三两三”的大杯），讲究人人有份、杯子随时满着。",
+      tags:[{k:"规 矩", t:"别人给你倒酒，自己别先动手；杯子不能空着。"}],
+      cups:"full", glow:[] },
+
+    { key:"主陪", title:"主陪带酒",
+      body:"主陪先致辞——感谢、欢迎，把规矩定下来（比如分几口喝完，图吉利常说“六起”），然后带头喝第一杯。只点桌不碰杯叫“过电”，不算数。",
+      tags:[{k:"规 矩", t:"集体带酒还没结束，客人先别急着主动敬酒。"}],
+      cups:"full", glow:["zhupei"], drank:["zhupei"], speech:{seat:"zhupei", text:"我先敬"} },
+
+    { key:"副陪", title:"副陪接酒",
+      body:"主陪喝完，副陪紧接着带一杯，分量常比主陪稍少。副陪是酒力担当，负责把场子的气氛带起来。",
+      tags:[{k:"节 奏", t:"跟着主陪、副陪的节奏走，别自己抢跑。"}],
+      cups:"full", glow:["fupei"], drank:["zhupei","fupei"], speech:{seat:"fupei", text:"再走一个"} },
+
+    { key:"敬酒", title:"自由敬酒",
+      body:"集体阶段结束，主陪宣布“自由活动”。先是主宾回敬主陪、次宾回敬副陪，再顺时针一圈圈展开。这是规矩最密的一段。",
+      tags:[
+        {k:"敬酒礼仪", t:"晚辈、下级杯口放低些（右手持杯、左手托底）；碰杯时要说句祝酒词。"},
+        {k:"潜规则", t:"可以多人敬一人，不能一人敬多人（除非你是领导）。敬人时自己喝完、对方随意，显大度。“喝酒成双”，常敬两杯。"}],
+      cups:"full", glow:["zhubin","zhupei"], arrows:true },
+
+    { key:"鱼头", title:"上鱼 · 鱼头酒",
+      body:"上鱼是大菜，寓意“年年有余”。鱼头对着谁，谁就是主宾，要喝“鱼头酒”，讲究“头三尾四”：鱼头方向喝三杯，鱼尾方向喝四杯。",
+      tags:[{k:"讲 究", t:"鱼头不能对着人乱摆；上鱼往往也是宴席接近尾声的信号。"}],
+      cups:"full", glow:["zhubin"], fish:true },
+
+    { key:"散席", title:"门清散席",
+      body:"主陪宣布“门清”或带最后一杯（常和主食一起上），喝完就可以散席了。杯里留一点酒底，取个“年年有余”。",
+      tags:[
+        {k:"给第一次去的你", t:"多观察、少主动、谦虚热情。真不能喝就提前说明，但别一遍遍强调“我不会喝”。"},
+        {k:"安 全", t:"先垫垫肚子、慢慢喝，量力而行，安全第一。", danger:true}],
+      cups:"low", glow:["zhupei"], speech:{seat:"zhupei", text:"门清"} },
+  ];
+
+  // ---- build seats + cups into the svg ----
+  const gSeats = document.getElementById("seats");
+  const gCups  = document.getElementById("cups");
+  const CHIP_W = 92, CHIP_H = 38;
+
+  SEATS.forEach(s => {
+    const [sx, sy] = ptAt(s.angle, 205);
+    const seat = el("g", {class:"seat", "data-id":s.id, "data-side":s.side,
+      tabindex:"0", role:"button", "aria-label":s.role});
+    seat.appendChild(el("rect", {class:"ring",
+      x:sx-CHIP_W/2-5, y:sy-CHIP_H/2-5, width:CHIP_W+10, height:CHIP_H+10, rx:12}));
+    seat.appendChild(el("rect", {class:"chip",
+      x:sx-CHIP_W/2, y:sy-CHIP_H/2, width:CHIP_W, height:CHIP_H, rx:9}));
+    const label = el("text", {class:"chip-label", x:sx, y:sy});
+    label.textContent = s.role;
+    seat.appendChild(label);
+    gSeats.appendChild(seat);
+
+    const [cx, cy] = ptAt(s.angle, 116);
+    const cup = el("g", {class:"cup", "data-seat":s.id,
+      transform:`translate(${cx.toFixed(1)},${cy.toFixed(1)})`});
+    cup.appendChild(el("path", {class:"cup-glass",
+      d:"M-7,-10 L7,-10 L5.4,8 a2,2 0 0 1 -2,1.6 L-3.4,9.6 a2,2 0 0 1 -2,-1.6 Z"}));
+    cup.appendChild(el("rect", {class:"cup-fill", x:-5.2, y:-2, width:10.4, height:10.4, rx:1.5}));
+    gCups.appendChild(cup);
+  });
+
+  // ---- fish (head points toward 主宾, angle 315) ----
+  const gFish = document.getElementById("fish");
+  const [fx, fy] = ptAt(315, 60);
+  const fishInner = el("g", {transform:`translate(${fx.toFixed(1)},${fy.toFixed(1)}) rotate(225)`});
+  fishInner.appendChild(el("path", {class:"body", d:"M30,0 C20,-15 -18,-15 -30,-2 C-18,11 20,15 30,0 Z"}));
+  fishInner.appendChild(el("path", {class:"fin", d:"M-30,-2 L-46,-13 L-44,0 L-46,13 Z"}));
+  fishInner.appendChild(el("circle", {class:"eye", cx:20, cy:-3, r:2.4}));
+  gFish.appendChild(fishInner);
+  const fishLabel = el("text", {id:"fish-label", x:ptAt(315,150)[0], y:ptAt(315,150)[1]-2});
+  fishLabel.textContent = "鱼头对主宾";
+  gFish.appendChild(fishLabel);
+
+  // ---- toast overlay (built once) ----
+  const gToast = document.getElementById("toast");
+  // main return-toast arrow: 主宾 -> 主陪
+  const [ax, ay] = ptAt(315, 116);
+  const [bx, by] = ptAt(0, 116);
+  const mx = (ax+bx)/2, my=(ay+by)/2;
+  const ctrlx = mx + 0.28*(CX-mx), ctrly = my + 0.28*(CY-my);
+  gToast.appendChild(el("path", {class:"flow",
+    d:`M${ax.toFixed(1)},${ay.toFixed(1)} Q${ctrlx.toFixed(1)},${ctrly.toFixed(1)} ${bx.toFixed(1)},${by.toFixed(1)}`}));
+  // arrowhead at 主陪 end
+  const hdir = Math.atan2(by-ctrly, bx-ctrlx);
+  const ah = 9;
+  const head = (ang) => `M${bx-ah*Math.cos(ang)},${by-ah*Math.sin(ang)} L${bx},${by} L${bx-ah*Math.cos(ang)},${by-ah*Math.sin(ang)}`;
+  gToast.appendChild(el("path", {class:"head",
+    d:`M${(bx-ah*Math.cos(hdir-0.42)).toFixed(1)},${(by-ah*Math.sin(hdir-0.42)).toFixed(1)} L${bx.toFixed(1)},${by.toFixed(1)} L${(bx-ah*Math.cos(hdir+0.42)).toFixed(1)},${(by-ah*Math.sin(hdir+0.42)).toFixed(1)}`}));
+  // clockwise sweep guide (315 -> +280deg)
+  const R = 198, start = 320, span = 268, steps = 44;
+  let d = "";
+  for (let i=0;i<=steps;i++){
+    const [px,py] = ptAt(start + span*i/steps, R);
+    d += (i===0?"M":"L") + px.toFixed(1) + "," + py.toFixed(1) + " ";
+  }
+  gToast.appendChild(el("path", {class:"sweep", d}));
+  const [ex,ey] = ptAt(start+span, R);
+  const [ep,ept] = ptAt(start+span-6, R);
+  const sdir = Math.atan2(ey-ept, ex-ep);
+  gToast.appendChild(el("path", {class:"sweep",
+    d:`M${(ex-10*Math.cos(sdir-0.4)).toFixed(1)},${(ey-10*Math.sin(sdir-0.4)).toFixed(1)} L${ex.toFixed(1)},${ey.toFixed(1)} L${(ex-10*Math.cos(sdir+0.4)).toFixed(1)},${(ey-10*Math.sin(sdir+0.4)).toFixed(1)}`,
+    "stroke-dasharray":"0"}));
+  const swLabel = el("text", {class:"sweep-label", x:ptAt(start+span*0.5, R+22)[0], y:ptAt(start+span*0.5, R+22)[1]});
+  swLabel.setAttribute("text-anchor","middle");
+  swLabel.textContent = "顺时针";
+  gToast.appendChild(swLabel);
+
+  // ---- build stepper ----
+  const stepperEl = document.getElementById("stepper");
+  const ords = ["壹","贰","叁","肆","伍","陆","柒","捌"];
+  STAGES.forEach((st, i) => {
+    const b = document.createElement("button");
+    b.className = "step-pip";
+    b.innerHTML = `<span class="ord">${ords[i]}</span>${st.key}`;
+    b.addEventListener("click", () => go(i));
+    stepperEl.appendChild(b);
+  });
+
+  // ---- references ----
+  const titleEl = document.getElementById("title");
+  const bodyEl  = document.getElementById("body");
+  const tagsEl  = document.getElementById("tags");
+  const posEl   = document.getElementById("posNow");
+  const prevBtn = document.getElementById("prev");
+  const nextBtn = document.getElementById("next");
+  const speechG = document.getElementById("speech");
+  const speechT = document.getElementById("speech-text");
+  const cupEls  = Array.from(document.querySelectorAll(".cup"));
+  const seatEls = Array.from(document.querySelectorAll(".seat"));
+  const pips    = Array.from(document.querySelectorAll(".step-pip"));
+
+  let idx = 0;
+
+  function render(){
+    const st = STAGES[idx];
+
+    posEl.textContent = idx + 1;
+    titleEl.textContent = st.title;
+    bodyEl.textContent = st.body;
+
+    tagsEl.innerHTML = "";
+    st.tags.forEach(tg => {
+      const w = document.createElement("div");
+      w.className = "tag";
+      w.innerHTML = `<span class="k${tg.danger?" danger":""}">${tg.k}</span><p>${tg.t}</p>`;
+      tagsEl.appendChild(w);
+    });
+
+    pips.forEach((p,i) => p.classList.toggle("active", i===idx));
+
+    // cups
+    const drank = st.drank || [];
+    cupEls.forEach(c => {
+      const id = c.getAttribute("data-seat");
+      c.classList.remove("is-full","is-low","is-empty","show");
+      if (st.cups === "none") return;
+      c.classList.add("show");
+      if (drank.includes(id)) c.classList.add("is-empty");
+      else if (st.cups === "low") c.classList.add("is-low");
+      else c.classList.add("is-full");
+    });
+
+    // glow seats
+    const glow = st.glow || [];
+    seatEls.forEach(s => s.classList.toggle("is-active", glow.includes(s.getAttribute("data-id"))));
+
+    // speech
+    if (st.speech){
+      const s = SEAT_BY_ID[st.speech.seat];
+      const [px,py] = ptAt(s.angle, 152);
+      speechG.setAttribute("transform", `translate(${px.toFixed(1)},${(py-2).toFixed(1)})`);
+      speechT.textContent = st.speech.text;
+      speechG.removeAttribute("hidden");
+    } else {
+      speechG.setAttribute("hidden","");
+    }
+
+    // arrows + fish
+    if (st.arrows){ gToast.removeAttribute("hidden"); gToast.classList.add("draw"); }
+    else { gToast.setAttribute("hidden",""); gToast.classList.remove("draw"); }
+    if (st.fish) gFish.removeAttribute("hidden"); else gFish.setAttribute("hidden","");
+
+    prevBtn.disabled = idx === 0;
+    nextBtn.disabled = idx === STAGES.length - 1;
+  }
+
+  function go(i){
+    idx = Math.max(0, Math.min(STAGES.length - 1, i));
+    render();
+  }
+
+  prevBtn.addEventListener("click", () => go(idx - 1));
+  nextBtn.addEventListener("click", () => go(idx + 1));
+
+  // seat tap -> show that role's blurb in the hint line
+  const hintEl = document.getElementById("hint");
+  const defaultHint = hintEl.innerHTML;
+  seatEls.forEach(s => {
+    const showNote = () => {
+      const data = SEAT_BY_ID[s.getAttribute("data-id")];
+      hintEl.innerHTML = `<strong>${data.role}</strong>（${data.side==="host"?"主方":"客方"}）：${data.note}`;
+    };
+    s.addEventListener("click", showNote);
+    s.addEventListener("keydown", e => {
+      if (e.key === "Enter" || e.key === " "){ e.preventDefault(); showNote(); }
+    });
+  });
+
+  // keyboard arrows for navigation
+  document.addEventListener("keydown", e => {
+    if (e.target.classList && e.target.classList.contains("seat")) return;
+    if (e.key === "ArrowRight") go(idx + 1);
+    else if (e.key === "ArrowLeft") go(idx - 1);
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
